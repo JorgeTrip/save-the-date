@@ -312,9 +312,10 @@
       width: 60px;
       height: 60px;
       background: radial-gradient(
-        circle at 38% 38%,
-        var(--color-acento),
-        var(--color-acento-oscuro) 70%
+        circle at 35% 35%,
+        #d4a574,
+        var(--color-acento) 40%,
+        var(--color-acento-oscuro) 75%
       );
       border-radius: 50%;
       display: flex;
@@ -322,17 +323,33 @@
       justify-content: center;
       box-shadow:
         0 4px 12px rgba(90, 60, 30, 0.35),
-        inset 0 1px 3px rgba(255,255,255,0.25);
-      /* Efecto de gotas de cera en el borde */
-      clip-path: polygon(
-        50% 0%, 61% 10%, 75% 5%, 78% 18%,
-        92% 20%, 88% 34%, 98% 42%, 90% 53%,
-        97% 65%, 85% 70%, 86% 84%, 72% 83%,
-        65% 96%, 52% 90%, 38% 97%, 32% 84%,
-        17% 86%, 16% 72%, 3% 65%, 11% 54%,
-        2% 42%, 13% 34%, 9% 20%, 23% 18%,
-        26% 5%, 40% 10%
+        inset -2px -2px 4px rgba(0, 0, 0, 0.2),
+        inset 2px 2px 4px rgba(255, 255, 255, 0.3);
+      /* Borde más uniforme con efecto 3D */
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    /* Efecto de iluminación en el borde del sello */
+    .lacre::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      padding: 2px;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.1) 30%,
+        transparent 50%,
+        rgba(0, 0, 0, 0.1) 70%,
+        rgba(0, 0, 0, 0.2) 100%
       );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
     }
 
     /* Monograma dentro del sello de lacre */
@@ -704,7 +721,7 @@
       }
 
       .carta {
-        padding: 100px 28px 40px;
+        padding: 130px 28px 40px;
       }
 
       /* Reducir tamaño de fuente de los nombres en pantallas chicas */
