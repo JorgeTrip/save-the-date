@@ -16,20 +16,20 @@ Este proyecto está vinculado a **Netlify** para su despliegue continuo. Cada ve
 
 ### Enlace de producción
 
-El sitio está disponible en: [URL de Netlify]
+El sitio está disponible en: [savethedate-neoproducciones.netlify.app](https://savethedate-neoproducciones.netlify.app/)
 
 ## Estructura del Proyecto
 
 ```
 /
-|-- save-the-date.html    # Archivo principal de la invitación
+|-- index.html            # Archivo principal de la invitación
 |-- README.md             # Documentación del proyecto
 ```
 
 ## Uso
 
 1. Clona el repositorio
-2. Modifica el archivo `save-the-date.html` con los datos de tu evento
+2. Modifica el archivo `index.html` con los datos de tu evento
 3. Los cambios se desplegarán automáticamente en Netlify
 
 ## Tecnologías
