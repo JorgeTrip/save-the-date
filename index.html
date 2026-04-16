@@ -159,7 +159,7 @@
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 40px 16px 60px;
+      padding: 120px 16px 60px;
       font-family: var(--fuente-cuerpo);
       color: var(--color-texto);
     }
@@ -169,7 +169,7 @@
        SOBRE / CARTA PRINCIPAL
        ══════════════════════════════════════════════════════════════ */
 
-    /* Contenedor principal que simula el sobre abierto */
+    /* Contenedor principal que simula el sobre */
     .sobre {
       position: relative;
       width: 100%;
@@ -178,32 +178,52 @@
       border-radius: var(--radio-carta);
       box-shadow: var(--sombra-carta);
       overflow: visible;
+      /* Espacio para la solapa que se abre hacia arriba */
+      padding-top: 0;
     }
 
-    /* Solapa superior del sobre (triángulo decorativo) */
-    .sobre::before {
-      content: '';
+    /* Cuerpo del sobre (donde va la carta) */
+    .sobre__cuerpo {
+      position: relative;
+      min-height: 80px;
+      border-radius: var(--radio-carta);
+      overflow: hidden;
+    }
+
+    /* Solapa superior del sobre - elemento real para animar */
+    .solapa {
       position: absolute;
-      top: -1px;
+      top: 0;
       left: 0;
       right: 0;
-      height: 80px;
-      background-color: var(--color-sobre);
-      clip-path: polygon(0 0, 50% 100%, 100% 0);
+      height: 100px;
+      /* Gradiente sutil para diferenciar del papel */
+      background: linear-gradient(
+        180deg,
+        var(--color-sobre) 0%,
+        #ebe3d5 50%,
+        var(--color-sobre) 100%
+      );
+      clip-path: polygon(0 0, 50% 85%, 100% 0);
       border-radius: var(--radio-carta) var(--radio-carta) 0 0;
-      /* Borde interior sutil */
-      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06);
-      z-index: 2;
+      z-index: 20;
+      transform-origin: top center;
+      cursor: pointer;
+      /* Borde visible para distinguir del papel */
+      box-shadow: 
+        inset 0 -2px 4px rgba(0,0,0,0.08),
+        0 2px 8px rgba(90, 60, 30, 0.15),
+        inset 0 0 0 1px rgba(184, 150, 110, 0.2);
     }
 
     /* Línea plegada del sobre (efecto 3D de la solapa) */
-    .sobre::after {
+    .solapa::after {
       content: '';
       position: absolute;
-      top: 78px;
+      bottom: 15px;
       left: 0;
       right: 0;
-      height: 1px;
+      height: 2px;
       background: linear-gradient(
         to right,
         transparent,
@@ -212,7 +232,39 @@
         var(--color-acento-claro),
         transparent
       );
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
       z-index: 3;
+    }
+
+    /* Estado inicial: solapa cerrada */
+    .solapa.cerrada {
+      transform: perspective(800px) rotateX(0deg);
+    }
+
+    /* Animación de apertura de la solapa */
+    @keyframes abrirSolapa {
+      0% {
+        transform: perspective(1000px) rotateX(0deg);
+      }
+      60% {
+        transform: perspective(1000px) rotateX(-125deg);
+      }
+      80% {
+        transform: perspective(1000px) rotateX(-115deg);
+      }
+      100% {
+        transform: perspective(1000px) rotateX(-120deg);
+      }
+    }
+
+    /* Clase para animar la apertura */
+    .solapa.abriendo {
+      animation: abrirSolapa 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    /* Solapa abierta (estado final) */
+    .solapa.abierta {
+      transform: perspective(1000px) rotateX(-120deg);
     }
 
 
@@ -221,9 +273,42 @@
       position: relative;
       margin: 0;
       background-color: var(--color-papel);
-      border-radius: 0 0 var(--radio-carta) var(--radio-carta);
+      border-radius: var(--radio-carta);
       padding: 120px 48px 50px;
       overflow: hidden;
+    }
+
+    /* Estado inicial: carta oculta dentro del sobre */
+    .carta.oculta {
+      transform: translateY(-100%);
+      opacity: 0;
+      z-index: 5;
+    }
+
+    /* Animación de emergencia del papel */
+    @keyframes emergerPapel {
+      0% {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      30% {
+        opacity: 0.5;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Clase para animar la emergencia */
+    .carta.emergiendo {
+      animation: emergerPapel 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Estado final: carta visible */
+    .carta.visible {
+      transform: translateY(0);
+      opacity: 1;
     }
 
     /* Capa de textura de papel (ruido/grano) encima del fondo */
@@ -300,15 +385,17 @@
     }
 
 
-    /* ══════════════════════════════════════════════════════════════
-       SELLO DE LACRE (decorativo en el centro superior)
-       ══════════════════════════════════════════════════════════════ */
+    /* SELLO DE LACRE (decorativo en el centro de la solapa)
+       El sello está posicionado sobre la solapa del sobre, centrado
+       horizontalmente y en la parte inferior de la solapa (donde está
+       el pliegue).
+       ================================================================ */
     .lacre {
       position: absolute;
-      top: 52px;
+      bottom: -42px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 10;
+      z-index: 25;
       width: 84px;
       height: 84px;
       /* Anillo exterior elevado con gradiente direccional */
@@ -428,13 +515,13 @@
       color: var(--color-texto);
       line-height: 1.1;
       display: block;
-      /* Animación de entrada al cargar la página */
-      animation: aparecerArriba 0.9s ease both;
+      /* Animación de entrada después del despliegue completo */
+      animation: aparecerArriba 0.9s ease 2.5s both;
     }
 
     /* El segundo nombre aparece con un leve retraso */
     .nombres__nombre:last-child {
-      animation-delay: 0.15s;
+      animation-delay: 2.65s;
     }
 
     /* Ampersand estilizado entre los nombres */
@@ -444,7 +531,7 @@
       color: var(--color-acento);
       line-height: 1.3;
       display: block;
-      animation: aparecerArriba 0.9s ease 0.08s both;
+      animation: aparecerArriba 0.9s ease 2.58s both;
     }
 
     /* Separador ornamental (rombos y líneas) */
@@ -774,8 +861,10 @@
 
 
     /* ══════════════════════════════════════════════════════════════
-       ANIMACIONES DE ENTRADA
-       ══════════════════════════════════════════════════════════════ */
+       ANIMACIONES DE ENTRADA (CONTENIDO INTERNO)
+       Los elementos internos aparecen con fade-in escalonado
+       después de que el papel termine de emerger.
+       ================================================================ */
 
     /* Los elementos entran apareciendo desde abajo */
     @keyframes aparecerArriba {
@@ -796,16 +885,17 @@
     }
 
     /* Aplicar animación escalonada a los bloques principales */
-    .etiqueta-std  { animation: aparecerArriba 0.8s ease 0.1s both; }
-    .ornamento     { animation: aparecer       0.8s ease 0.4s both; }
-    .fecha         { animation: aparecerArriba 0.8s ease 0.5s both; }
-    .anio          { animation: aparecerArriba 0.8s ease 0.6s both; }
-    .lugar         { animation: aparecerArriba 0.8s ease 0.7s both; }
-    .mensaje       { animation: aparecer       0.8s ease 0.8s both; }
-    .countdown     { animation: aparecerArriba 0.8s ease 0.9s both; }
-    .countdown__celebracion { animation: aparecerArriba 0.8s ease 0.9s both; }
-    .acciones      { animation: aparecer       0.8s ease 1.0s both; }
-    .pie           { animation: aparecer       0.8s ease 1.1s both; }
+    /* Retraso inicial de 2.4s para que aparezcan después de solapa + papel */
+    .etiqueta-std  { animation: aparecerArriba 0.8s ease 2.5s both; }
+    .ornamento     { animation: aparecer       0.8s ease 2.8s both; }
+    .fecha         { animation: aparecerArriba 0.8s ease 2.9s both; }
+    .anio          { animation: aparecerArriba 0.8s ease 3.0s both; }
+    .lugar         { animation: aparecerArriba 0.8s ease 3.1s both; }
+    .mensaje       { animation: aparecer       0.8s ease 3.2s both; }
+    .countdown     { animation: aparecerArriba 0.8s ease 3.3s both; }
+    .countdown__celebracion { animation: aparecerArriba 0.8s ease 3.3s both; }
+    .acciones      { animation: aparecer       0.8s ease 3.4s both; }
+    .pie           { animation: aparecer       0.8s ease 3.5s both; }
 
 
     /* ══════════════════════════════════════════════════════════════
@@ -865,18 +955,24 @@
   -->
 
   <!-- Estructura principal: el sobre -->
-  <div class="sobre">
+  <div class="sobre" id="sobre">
 
-    <!-- Sello de lacre decorativo con las iniciales de los novios -->
-    <div class="lacre" aria-hidden="true">
-      <span class="lacre__texto">
-        <!-- ✏️ INICIALES de los novios (máximo 2 caracteres) -->
-        M&amp;J
-      </span>
+    <!-- Solapa del sobre (se abre hacia arriba) -->
+    <div class="solapa cerrada" id="solapa">
+      <!-- Sello de lacre decorativo sobre la solapa -->
+      <div class="lacre" aria-hidden="true">
+        <span class="lacre__texto">
+          <!--  INICIALES de los novios (máximo 2 caracteres) -->
+          M&amp;J
+        </span>
+      </div>
     </div>
 
-    <!-- Interior de la carta -->
-    <div class="carta">
+    <!-- Cuerpo del sobre donde va la carta -->
+    <div class="sobre__cuerpo">
+      
+      <!-- Interior de la carta (inicia oculta dentro del sobre) -->
+      <div class="carta oculta" id="carta">
 
       <!-- Flor decorativa — esquina superior izquierda -->
       <div class="flor flor--tl" aria-hidden="true">
@@ -1161,6 +1257,7 @@
       </div>
 
     </div><!-- /carta -->
+    </div><!-- /sobre__cuerpo -->
   </div><!-- /sobre -->
 
   <!-- Indicador de scroll -->
@@ -1176,9 +1273,48 @@
 
 
   <!-- ================================================================
-       JAVASCRIPT — LÓGICA DEL CONTADOR REGRESIVO
+       JAVASCRIPT — LÓGICA DEL CONTADOR REGRESIVO Y ANIMACIONES
        ================================================================ -->
   <script>
+    /*
+     * ╔══════════════════════════════════════════════════════════════╗
+     * ║     EFECTO DE DESPLIEGUE DE PAPEL INICIAL
+     * 
+     * Secuencia de animación:
+     * 1. La solapa del sobre se abre hacia arriba (rotación 3D)
+     * 2. El papel emerge deslizándose desde dentro del sobre
+     * 3. El contenido aparece con fade-in escalonado
+     */
+    window.addEventListener('DOMContentLoaded', () => {
+      const solapa = document.getElementById('solapa');
+      const carta = document.getElementById('carta');
+      
+      // Fase 1: Abrir la solapa (después de 300ms)
+      setTimeout(() => {
+        solapa.classList.remove('cerrada');
+        solapa.classList.add('abriendo');
+        
+        // Fase 2: Cuando termina la animación de la solapa (900ms),
+        // el papel empieza a emerger
+        setTimeout(() => {
+          solapa.classList.remove('abriendo');
+          solapa.classList.add('abierta');
+          
+          carta.classList.remove('oculta');
+          carta.classList.add('emergiendo');
+          
+          // Fase 3: Cuando termina la emergencia del papel (1200ms),
+          // marcar como visible
+          setTimeout(() => {
+            carta.classList.remove('emergiendo');
+            carta.classList.add('visible');
+          }, 1200);
+          
+        }, 900);
+        
+      }, 300);
+    });
+
     /*
      * ╔══════════════════════════════════════════════════════════════╗
      * ║              CONFIGURACIÓN DEL CONTADOR                     ║
